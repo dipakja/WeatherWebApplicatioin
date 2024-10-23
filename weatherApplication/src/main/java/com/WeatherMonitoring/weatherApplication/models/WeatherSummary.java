@@ -1,24 +1,58 @@
 package com.WeatherMonitoring.weatherApplication.models;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "weather_summary")
-public class DailyWeatherSummary {
+public class WeatherSummary {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "city")
     private String city;
+
+    @Column(name = "average_temperature")
     private double averageTemperature;
+
+    @Column(name = "maximum_temperature")
     private double maximumTemperature;
+
+    @Column(name = "minimum_temperature")
     private double minimumTemperature;
+
+    @Column(name = "dominant_weather_condition")
     private String dominantWeatherCondition;
-    private String date; // To store the date of the summary
 
-    // Getters and setters
 
+    @Column(name = "average_humidity") // New field
+    private double averageHumidity;
+
+    @Column(name = "average_wind_speed") // New field
+    private double averageWindSpeed;
+
+    public double getAverageHumidity() {
+        return averageHumidity;
+    }
+
+    public void setAverageHumidity(double averageHumidity) {
+        this.averageHumidity = averageHumidity;
+    }
+
+    public double getAverageWindSpeed() {
+        return averageWindSpeed;
+    }
+
+    public void setAverageWindSpeed(double averageWindSpeed) {
+        this.averageWindSpeed = averageWindSpeed;
+    }
+
+    @Column(name = "last_updated")
+    private LocalDateTime lastUpdated;
+
+    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -67,11 +101,11 @@ public class DailyWeatherSummary {
         this.dominantWeatherCondition = dominantWeatherCondition;
     }
 
-    public String getDate() {
-        return date;
+    public LocalDateTime getLastUpdated() {
+        return lastUpdated;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setLastUpdated(LocalDateTime lastUpdated) {
+        this.lastUpdated = lastUpdated;
     }
 }

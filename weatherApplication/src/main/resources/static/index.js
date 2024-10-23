@@ -5,6 +5,12 @@ const fetchTemperatureData = async () => {
         const weatherDataPromises = cities.map(city => fetch(`/api/weather?city=${city}`).then(res => res.json()));
         const allWeatherData = await Promise.all(weatherDataPromises);
 
+        // Inject city names directly into the weather data
+        allWeatherData.forEach((data, index) => {
+            data.city = cities[index]; // Adding the city name to the data object
+        });
+
+        // Prepare data for rendering charts (optional)
         const formattedData = {
             temperature: [],
             humidity: [],
@@ -15,7 +21,7 @@ const fetchTemperatureData = async () => {
 
         allWeatherData.forEach((data, index) => {
             formattedData.cities.push(cities[index]);
-            formattedData.temperature.push(data.temperature); // Store raw temperature values for conversion
+            formattedData.temperature.push(data.temperature);
             formattedData.humidity.push(data.humidity);
             formattedData.windSpeed.push(data.windSpeed);
             formattedData.cloudCover.push(data.cloudCover);
@@ -31,34 +37,90 @@ const fetchTemperatureData = async () => {
     }
 };
 
+
+// Function to get weather icon class based on weather condition
+const getWeatherIconClass = (weatherCondition) => {
+    const condition = weatherCondition.toLowerCase();
+
+    switch (condition) {
+        case 'clear':
+            return { icon: 'fas fa-sun', color: '#FFD700;' };  // Yellow for clear weather
+        case 'clouds':
+        case 'overcast clouds':
+            return { icon: 'fas fa-cloud', color: '#B0C4DE' };  // Gray for cloudy weather
+        case 'light rain':
+            return { icon: 'fas fa-cloud-showers-heavy', color: '#00BFFF' };  // Light blue for light rain
+        case 'moderate rain':
+            return { icon: 'fas fa-cloud-rain', color: '#4682B4' };  // Dark blue for moderate rain
+        case 'smoke':
+        case 'haze':
+        case 'mist':
+        return { icon: 'fas fa-cloud', color: '#4682B4' };
+        case 'broken clouds':
+            return{icon:'fas fa-solid fa-cloud',color:'#74C0FC'}
+        case 'fog':
+            return { icon: 'fas fa-smog', color: '#D3D3D3' };  // Light gray or brown for haze, mist, smoke
+        case 'snow':
+            return { icon: 'fas fa-snowflake', color: '#ADD8E6' };  // White for snow
+        case 'thunderstorm':
+            return { icon: 'fas fa-bolt', color: '#FF4500' };  // Dark gray with lightning for thunderstorm
+        default:
+            return { icon: 'fas fa-question', color: '#A9A9A9' };  // Red for unknown conditions
+    }
+};
+
 // Function to update the weather cards dynamically
-const updateWeatherCards = (data, formattedData) => {
+const updateWeatherCards = (data) => {
     const weatherCardsContainer = document.getElementById('weather-cards');
     weatherCardsContainer.innerHTML = '';
 
-    data.forEach((cityData, index) => {
+    // Log the data to see what is being passed
+//    console.log("Weather Data:", data);
+
+    data.forEach((cityData) => {
+        // Log each cityData object to inspect its properties
+//        console.log("City Data:", cityData);
+
         const card = document.createElement('div');
         card.className = 'col-md-4';
 
-        const cityName = formattedData.cities[index];
-        const temperature = cityData.temperature; // Use the raw temperature value
+        // Access city, temperature, weatherCondition, etc.
+        const cityName = cityData.city || 'Unknown City';
+        const temperature = cityData.temperature || 0;
+        const weatherCondition = cityData.weather || 'Unknown';
+        const humidity = cityData.humidity || 'N/A';
+        const windSpeed = cityData.windSpeed || 'N/A';
+        const cloudCover = cityData.cloudCover || 'N/A';
+
+        // Log the values being used
+//        console.log("City Name:", cityName);
+//        console.log("Weather Condition:", weatherCondition);
+
+        // Get the correct weather icon class based on weatherCondition
+      // Get both the icon and the color class for the weather condition
+            const { icon: weatherIconClass, color: weatherColorClass } = getWeatherIconClass(weatherCondition);
+
 
         card.innerHTML = `
-            <div class="card mb-3 weather-card ${getWeatherClass(cityData.weather)}">
+            <div class="card mb-3 weather-card">
                 <div class="card-body text-center">
                     <h5 class="card-title">${cityName}</h5>
-                    <i class="weather-icon ${getWeatherClass(cityData.weather)}"></i>
+                    <i class="${weatherIconClass}" style="font-size: 40px;color: ${weatherColorClass};"></i> <!-- Weather icon -->
                     <p class="card-text temperature-value" data-unit="C">Temperature: ${temperature.toFixed(2)}°C</p>
-                    <p class="card-text">Weather: ${cityData.weather || 'Unknown'}</p>
-                    <p class="card-text">Humidity: ${cityData.humidity || 'N/A'}%</p>
-                    <p class="card-text">Wind Speed: ${cityData.windSpeed || 'N/A'} m/s</p>
-                    <p class="card-text">Cloud Cover: ${cityData.cloudCover || 'N/A'}%</p>
+                    <p class="card-text">Weather: ${weatherCondition}</p>
+                    <p class="card-text">Humidity: ${humidity}%</p>
+                    <p class="card-text">Wind Speed: ${windSpeed} m/s</p>
+                    <p class="card-text">Cloud Cover: ${cloudCover}%</p>
                 </div>
             </div>
         `;
         weatherCardsContainer.appendChild(card);
     });
 };
+
+
+
+
 
 // Function to return appropriate class based on weather condition
 const getWeatherClass = (weatherCondition) => {
@@ -76,102 +138,55 @@ const getWeatherClass = (weatherCondition) => {
     }
 };
 
-// Function to render the charts
-const renderCharts = (data) => {
-    const ctxTemperature = document.getElementById('temperatureChart').getContext('2d');
-    const ctxHumidity = document.getElementById('humidityChart').getContext('2d');
-    const ctxWindSpeed = document.getElementById('windSpeedChart').getContext('2d');
-    const ctxCloudCover = document.getElementById('cloudCoverChart').getContext('2d');
+// Function to fetch weather summary data
+const fetchWeatherSummary = async () => {
+    try {
+        const response = await fetch('/api/weather-summary');
+        const weatherSummaryData = await response.json();
 
-    // Temperature chart
-    new Chart(ctxTemperature, {
-        type: 'line',
-        data: {
-            labels: data.cities,
-            datasets: [{
-                label: 'Temperature (°C)',
-                data: data.temperature.map(temp => temp.toFixed(2)), // Convert temperatures for chart
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 2,
-                fill: true
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
+        // Update the summary section with the fetched data
+        updateWeatherSummary(weatherSummaryData);
+    } catch (error) {
+        console.error('Error fetching weather summary data:', error);
+    }
+};
 
-    // Humidity chart
-    new Chart(ctxHumidity, {
-        type: 'bar',
-        data: {
-            labels: data.cities,
-            datasets: [{
-                label: 'Humidity (%)',
-                data: data.humidity,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 2,
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
+// Function to update the weather summary section
 
-    // Wind Speed chart
-    new Chart(ctxWindSpeed, {
-        type: 'bar',
-        data: {
-            labels: data.cities,
-            datasets: [{
-                label: 'Wind Speed (m/s)',
-                data: data.windSpeed,
-                backgroundColor: 'rgba(255, 206, 86, 0.2)',
-                borderColor: 'rgba(255, 206, 86, 1)',
-                borderWidth: 2,
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
+const updateWeatherSummary = (summaries) => {
+    const summaryContainer = document.getElementById('dailySummary');
+    summaryContainer.innerHTML = ''; // Clear existing content
 
-    // Cloud Cover chart
-    new Chart(ctxCloudCover, {
-        type: 'bar',
-        data: {
-            labels: data.cities,
-            datasets: [{
-                label: 'Cloud Cover (%)',
-                data: data.cloudCover,
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 2,
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
+    summaries.forEach((summary) => {
+        const weatherIconClass = getWeatherIconClass(summary.dominantWeatherCondition);
+        const summaryCard = `
+            <div class="city-summary card" style="background-color: #f9f9f9; border: 1px solid #ccc; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
+                <h5 style="display: flex; align-items: center;">
+                    <i class="${weatherIconClass}" style="font-size: 24px; margin-right: 8px;"></i>
+                    <strong>${summary.city}</strong>
+                </h5>
+                <p style="margin: 0;">
+                    <strong>Avg Temp:</strong> ${summary.averageTemperature.toFixed(2)}°C |
+                    <strong>Max Temp:</strong> ${summary.maximumTemperature.toFixed(2)}°C |
+                    <strong>Min Temp:</strong> ${summary.minimumTemperature.toFixed(2)}°C
+                </p>
+                <p style="margin: 0;">
+                    <strong>Condition:</strong> ${summary.dominantWeatherCondition} |
+                    <strong>Avg Humidity:</strong> ${summary.averageHumidity.toFixed(2)}% |
+                    <strong>Avg Wind Speed:</strong> ${summary.averageWindSpeed.toFixed(2)} m/s
+                </p>
+                <p style="margin: 0;">
+                    <strong>Last Updated:</strong> ${new Date(summary.lastUpdated).toLocaleString()}
+                </p>
+            </div>
+        `;
+
+        summaryContainer.innerHTML += summaryCard;
     });
 };
+
+// Call the fetchWeatherSummary function to fetch and display the data
+fetchWeatherSummary();
 
 // Function to toggle temperature units
 const toggleTemperatureUnits = () => {
