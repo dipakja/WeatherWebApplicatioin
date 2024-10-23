@@ -119,6 +119,17 @@ ii.Alerts for Extreme Weather: Users can set thresholds for temperature or weath
 
 ## Screenshots
 
+<img src="weatherApplication/src/main/resources/static/01.png" />
+
+<img src="weatherApplication/src/main/resources/static/02.png" />
+
+<img src="weatherApplication/src/main/resources/static/03.png" />
+
+<img src="weatherApplication/src/main/resources/static/04.png" />
+
+
+
+
 
 
 ## Conclusion
