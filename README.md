@@ -45,7 +45,7 @@ spring.datasource.password=your_database_password
 ## Database Schema
 
 ### Weather Readings Table
-You can create the `<sub>weather_readings</sub>` table using the following SQL query:
+You can create the `weather_readings` table using the following SQL query:
 
 ```sql
 CREATE TABLE weather_readings (
@@ -61,7 +61,7 @@ CREATE TABLE weather_readings (
 ```
 
 ### Weather Summary Table
-You can create the `<sub>weather_summary</sub>` table using the following SQL query:
+You can create the `weather_summary` table using the following SQL query:
 ```sql
 CREATE TABLE weather_summary (
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
