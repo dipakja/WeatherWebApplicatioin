@@ -28,8 +28,8 @@ A real-time weather monitoring system that retrieves and displays weather data u
 ## Installation
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/dipakja/RuleEngine.git
-   cd RuleEngine
+   git clone https://github.com/dipakja/WeatherWebApplicatioin.git
+   cd WeatherWebApplicatioin
 2.Install Dependencies: Ensure you have Maven installed. Then, run the following command in the project directory:
 
 ```bash
