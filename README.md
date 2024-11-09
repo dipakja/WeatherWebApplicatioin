@@ -125,6 +125,8 @@ ii.Alerts for Extreme Weather: Users can set thresholds for temperature or weath
 
 <img src="weatherApplication/src/main/resources/static/03.png" />
 
+<img src="weatherApplication/src/main/resources/static/swaggerImgWeather.png" />
+
 <img src="weatherApplication/src/main/resources/static/04.png" />
 
 
