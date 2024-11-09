@@ -64,8 +64,10 @@ const getWeatherIconClass = (weatherCondition) => {
             return { icon: 'fas fa-snowflake', color: '#ADD8E6' };  // White for snow
         case 'thunderstorm':
             return { icon: 'fas fa-bolt', color: '#FF4500' };  // Dark gray with lightning for thunderstorm
+         case 'drizzle':
+           return { icon: 'fas fa-smog', color: '#D3D3D3' };
         default:
-            return { icon: 'fas fa-question', color: '#A9A9A9' };  // Red for unknown conditions
+            return { icon: 'fas fa-solid fa-cloud', color: '#A9A9A9' };  // Red for unknown conditions
     }
 };
 
